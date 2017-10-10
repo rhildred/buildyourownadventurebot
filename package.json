@@ -6,8 +6,10 @@
     "start": "node app.js"
   },
   "dependencies": {
+    "connect": "^3.4.0",
     "express": "*",
     "path": "*",
+    "serve-static": "^1.10.0",
     "twilio": "^3.7.0"
   }
 }

@@ -1,9 +1,9 @@
 var express = require('express');
 var path = require('path');
 var app = express();
+
 var bodyParser = require('body-parser');
 var twilio = require('twilio');
-
 var oConnections = {};
 
 // Define the port to run on
@@ -13,7 +13,8 @@ app.set('port', process.env.PORT || parseInt(process.argv.pop()) || 5100);
 var sPath = path.join(__dirname, '.');
 
 app.use(express.static(sPath));
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 function fPlay(req, res){
   var sFrom = req.body.From;
@@ -73,7 +74,6 @@ function fBeginning(req, res){
   twiml.message('Hi ... My name is Sheba. I am very enthusiastic about this game. Wait! Is that a stick or a fire hydrant?');
   res.writeHead(200, {'Content-Type': 'text/xml'});
   res.end(twiml.toString());
-
 }
 
 //define a method for the twilio webhook
@@ -83,6 +83,17 @@ app.post('/sms', function(req, res) {
     oConnections[sFrom] = {"fCurState":fBeginning};
   }
   oConnections[sFrom].fCurState(req, res);
+});
+
+//define a method for the twilio web hook
+app.post('/sms', (req, res) => {
+  console.log(req.body);
+  const twiml = new MessagingResponse();
+
+  twiml.message('The Robots are coming! Head for the hills!');
+
+  res.writeHead(200, {'Content-Type': 'text/xml'});
+  res.end(twiml.toString());
 });
 
 // Listen for requests
