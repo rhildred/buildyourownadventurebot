@@ -16,52 +16,28 @@ app.use(express.static(sPath));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-function fPlay(req, res){
+function gameOver_KawalaBearElectricutesYou (){
+  twiml.message("A magical flying kawala bear appears out of nowhere, shouting at you for being indecisive, and electricutes you with its magic powers, knocking you out. " + 
+  "Maybe next time you should answer the question.")
+  oConnections[sFrom].fCurState = fBeginning;
+}
+
+function fEatCottonCandyOrNot(req, res){
   var sFrom = req.body.From;
   var sAction = req.body.Body;
   var twiml = new twilio.twiml.MessagingResponse();
   if(sAction.toLowerCase().search("yes") != -1){
-    twiml.message("Oh glory. Here it is. I got it for you. Do you throw it again?");
-  }else if(sAction.toLowerCase().search("no") != -1){
-    twiml.message("Oh well. Wait .... Over there is that a stick or a fire hydrant?");
-    oConnections[sFrom].fCurState = fStickOrHydrant;
-  }else{
-    twiml.message("Wow! I've never seen you do " + sAction + " before. Wait .... Over there is that a stick or a fire hydrant?")
-    oConnections[sFrom].fCurState = fStickOrHydrant;    
+    twiml.message("You catch a piece of cotton candy and shove it in your mouth. You find yourself feeling dizzy, and your vision going blurry... and you start to feel a bit numb. " + 
+    "Do you spit out the cotton candy or do you swallow it and accept your fate?");
+    oConnections[sFrom].fCurState = fSwallowOrSpitOut;
   }
-  res.writeHead(200, {'Content-Type': 'text/xml'});
-  res.end(twiml.toString());
-}
-
-function fStick(req, res){
-  var sFrom = req.body.From;
-  var sAction = req.body.Body;
-  var twiml = new twilio.twiml.MessagingResponse();
-  if(sAction.toLowerCase().search("eat") != -1){
-    oConnections[sFrom].fCurState = fStickOrHydrant;
-    twiml.message("Yum! Sticks are the best thing ever lot's of roughage. Wait .... Over there is that a stick or a fire hydrant?");
-  }else if(sAction.toLowerCase().search("take") != -1){
-    twiml.message("Please play with me. Do you throw the stick?");
-    oConnections[sFrom].fCurState = fPlay;
-  }else{
-    twiml.message("Wow! I've never done " + sAction + " before. Wait .... Over there is that a stick or a fire hydrant?")
-    oConnections[sFrom].fCurState = fStickOrHydrant;    
+  else if(sAction.toLowerCase().search("no") != -1){  
+    twiml.message("You decide to just watch the cotton candy fall in peace and not take any chances. But suddenly the cotton candy begins to swarm you and cover your entire body, " + 
+    "forming a body suit. You feel an urge to jump. Do you?");
+    oConnections[sFrom].fCurState = fJumpInCottonCandySuitOrNot;
   }
-  res.writeHead(200, {'Content-Type': 'text/xml'});
-  res.end(twiml.toString());
-}
-
-function fStickOrHydrant(req, res){
-  var sFrom = req.body.From;
-  var sAction = req.body.Body;
-  var twiml = new twilio.twiml.MessagingResponse();
-  if(sAction.toLowerCase().search("stick") != -1){
-    twiml.message("I love sticks.... Should I eat it or take it to my person so he will throw it?");
-    oConnections[sFrom].fCurState = fStick;
-  }else if(sAction.toLowerCase().search("hydrant") != -1){  
-    twiml.message("Pee mail! How exciting. Wait .... Over there is that a stick or a fire hydrant?");
-  }else {
-    twiml.message("Wow! I've never seen " + sAction + " before. Wait .... Over there is that a stick or a fire hydrant?")
+  else {
+    gameOver_KawalaBearElectricutesYou();
   }
   res.writeHead(200, {'Content-Type': 'text/xml'});
   res.end(twiml.toString());
@@ -69,9 +45,9 @@ function fStickOrHydrant(req, res){
 
 function fBeginning(req, res){
   var sFrom = req.body.From;
-  oConnections[sFrom].fCurState = fStickOrHydrant;
+  oConnections[sFrom].fCurState = fEatCottonCandyOrNot;
   var twiml = new twilio.twiml.MessagingResponse();
-  twiml.message('Hi ... My name is Sheba. I am very enthusiastic about this game. Wait! Is that a stick or a fire hydrant?');
+  twiml.message('You wake up to find yourself in a very strange world, and you notice that it\'s raining cotton candy. Do you eat the cotton candy that is falling from the sky?');
   res.writeHead(200, {'Content-Type': 'text/xml'});
   res.end(twiml.toString());
 
@@ -85,16 +61,6 @@ app.post('/sms', function(req, res) {
   }
   oConnections[sFrom].fCurState(req, res);
 });
-
-//Twilio webhook method
-// app.post('/sms', function(req, res) {
-//   console.log(req.body);
-//   var twilio = require('twilio');
-//   var twiml = new twilio.twiml.MessagingResponse();
-//   twiml.message('The Robots are coming! Head for the hills!');
-//   res.writeHead(200, {'Content-Type': 'text/xml'});
-//   res.end(twiml.toString());
-// });
 
 // Listen for requests
 var server = app.listen(app.get('port'), () =>{
