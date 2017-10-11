@@ -29,12 +29,12 @@ function fEatCottonCandyOrNot(req, res){
   if(sAction.toLowerCase().search("yes") != -1){
     twiml.message("You catch a piece of cotton candy and shove it in your mouth. You find yourself feeling dizzy, and your vision going blurry... and you start to feel a bit numb. " + 
     "Do you spit out the cotton candy or do you swallow it and accept your fate?");
-    oConnections[sFrom].fCurState = fSwallowOrSpitOut;
+    //oConnections[sFrom].fCurState = fSwallowOrSpitOut;
   }
   else if(sAction.toLowerCase().search("no") != -1){  
     twiml.message("You decide to just watch the cotton candy fall in peace and not take any chances. But suddenly the cotton candy begins to swarm you and cover your entire body, " + 
     "forming a body suit. You feel an urge to jump. Do you?");
-    oConnections[sFrom].fCurState = fJumpInCottonCandySuitOrNot;
+    //oConnections[sFrom].fCurState = fJumpInCottonCandySuitOrNot;
   }
   else {
     gameOver_KawalaBearElectricutesYou();
