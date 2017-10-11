@@ -115,16 +115,19 @@ function fWindUpJackInBoxOrNot(req, res){
     oConnections[sFrom].fCurState = fBeginning;
   }
   else {
-    gameOver_KawalaBearElectricutesYou();
+    gameOver_KawalaBearElectricutesYou(req, res, sFrom);
   }
   res.writeHead(200, {'Content-Type': 'text/xml'});
   res.end(twiml.toString());
 }
 
 
-function gameOver_KawalaBearElectricutesYou (){
+function gameOver_KawalaBearElectricutesYou (req, res, sFrom){
+  var twiml = new twilio.twiml.MessagingResponse();
   twiml.message("A magical flying kawala bear appears out of nowhere, shouting at you for not answering the question properly, and electricutes you with its magic powers. You Died.")
   oConnections[sFrom].fCurState = fBeginning;
+  res.writeHead(200, {'Content-Type': 'text/xml'});
+  res.end(twiml.toString());
 }
 
 //define a method for the twilio webhook
