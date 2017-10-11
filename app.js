@@ -16,6 +16,9 @@ app.use(express.static(sPath));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
+//If a user ever responds with invalid input, this is the text that displays to them before restarting the adventure.
+var incorrectInputText = "A magical flying kawala bear appears out of nowhere, shouting at you for not answering the question properly, and electricutes you with its magic powers. You Died.";
+
 function fBeginning(req, res){
   var sFrom = req.body.From;
   oConnections[sFrom].fCurState = fEatCottonCandyOrNot;
@@ -39,7 +42,8 @@ function fEatCottonCandyOrNot(req, res){
     oConnections[sFrom].fCurState = fJumpInCottonCandySuitOrNot;
   }
   else {
-    gameOver_KawalaBearElectricutesYou();
+    twiml.message(incorrectInputText);
+    oConnections[sFrom].fCurState = fBeginning;
   }
   res.writeHead(200, {'Content-Type': 'text/xml'});
   res.end(twiml.toString());
@@ -50,15 +54,16 @@ function fJumpInCottonCandySuitOrNot(req, res){
   var sAction = req.body.Body;
   var twiml = new twilio.twiml.MessagingResponse();
   if(sAction.toLowerCase().search("yes") != -1 || (sAction.toLowerCase().search("jump") != -1 && sAction.toLowerCase().search("don't") == -1 && sAction.toLowerCase().search("dont") == -1)){
-    twiml.message("You decide to ignore your urge to jump with your cotton candy suit, but a few minutes later your suit begins to squeeze you tightly, suffocating you until you die.");
-    oConnections[sFrom].fCurState = fBeginning;
-  }
-  else if(sAction.toLowerCase().search("no") != -1 || sAction.toLowerCase().search("don't") != -1 || sAction.toLowerCase().search("dont") != -1){  
     twiml.message("As you jump into the air, you begin floating upward as if you were full of helium. You don't know how to stop going up. You float so high into the sky that there is no longer enough oxygen for you to breathe. You quickly lose conciousness and then you die from lack of oxygen.");
     oConnections[sFrom].fCurState = fBeginning;
   }
+  else if(sAction.toLowerCase().search("no") != -1 || sAction.toLowerCase().search("don't") != -1 || sAction.toLowerCase().search("dont") != -1){  
+    twiml.message("You decide to ignore your urge to jump with your cotton candy suit, but a few minutes later your suit begins to squeeze you tightly, suffocating you until you die.");
+    oConnections[sFrom].fCurState = fBeginning;
+  }
   else {
-    gameOver_KawalaBearElectricutesYou();
+    twiml.message(incorrectInputText);
+    oConnections[sFrom].fCurState = fBeginning;
   }
   res.writeHead(200, {'Content-Type': 'text/xml'});
   res.end(twiml.toString());
@@ -77,7 +82,8 @@ function fSwallowOrSpitOut(req, res){
     oConnections[sFrom].fCurState = fShoutOrPressButton;
   }
   else {
-    gameOver_KawalaBearElectricutesYou();
+    twiml.message(incorrectInputText);
+    oConnections[sFrom].fCurState = fBeginning;
   }
   res.writeHead(200, {'Content-Type': 'text/xml'});
   res.end(twiml.toString());
@@ -96,7 +102,8 @@ function fShoutOrPressButton(req, res){
     oConnections[sFrom].fCurState = fWindUpJackInBoxOrNot;
   }
   else {
-    gameOver_KawalaBearElectricutesYou();
+    twiml.message(incorrectInputText);
+    oConnections[sFrom].fCurState = fBeginning;
   }
   res.writeHead(200, {'Content-Type': 'text/xml'});
   res.end(twiml.toString());
@@ -115,17 +122,9 @@ function fWindUpJackInBoxOrNot(req, res){
     oConnections[sFrom].fCurState = fBeginning;
   }
   else {
-    gameOver_KawalaBearElectricutesYou(req, res, sFrom);
+    twiml.message(incorrectInputText);
+    oConnections[sFrom].fCurState = fBeginning;
   }
-  res.writeHead(200, {'Content-Type': 'text/xml'});
-  res.end(twiml.toString());
-}
-
-
-function gameOver_KawalaBearElectricutesYou (req, res, sFrom){
-  var twiml = new twilio.twiml.MessagingResponse();
-  twiml.message("A magical flying kawala bear appears out of nowhere, shouting at you for not answering the question properly, and electricutes you with its magic powers. You Died.")
-  oConnections[sFrom].fCurState = fBeginning;
   res.writeHead(200, {'Content-Type': 'text/xml'});
   res.end(twiml.toString());
 }
