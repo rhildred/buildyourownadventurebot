@@ -24,10 +24,13 @@ var incorrectInputText = "A magical flying kawala bear appears out of nowhere, s
 function smartSearch(searchText, findTextList) {
   for (var i = 0; i < findTextList.length; i++) {
     var findText = findTextList[i];
-    findText = " " + findText + " ";
-    searchText = " " + searchText + " ";
+    //findText = " " + findText + " ";
+    searchText = " " + searchText.toLowerCase() + " ";
     if (searchText.search(findText) != -1) {
-      return true;
+      if (!(searchText.charAt((searchText.search(findText) - 1)).match(/[a-z]/)) && !(searchText.charAt((searchText.search(findText) + findText.length)).match(/[a-z]/))){
+        return true;
+      }
+
     }
   }
   return false;
