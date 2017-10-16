@@ -17,13 +17,27 @@ app.use(express.static(sPath));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //If a user ever responds with invalid input, this is the text that displays to them before restarting the adventure.
-var incorrectInputText = "A magical flying kawala bear appears out of nowhere, shouting at you for not answering the question properly, and electricutes you with its magic powers. You Died.";
+var incorrectInputText = "A magical flying kawala bear appears out of nowhere, shouting at you for not answering the question properly, and electricutes you with its magic powers. You Died.\n\n[GAME OVER]";
+
+//-This search takes an array of strings to allow a search for multiple strings
+//-This search also ensures that the text searched for is not part of another word. For example, if you search for 'no', a word such as 'another' that contains the word 'no' will NOT validate the search
+function smartSearch(searchText, findTextList) {
+  for (var i = 0; i < findTextList.length; i++) {
+    var findText = findTextList[i];
+    findText = " " + findText + " ";
+    searchText = " " + searchText + " ";
+    if (searchText.search(findText) != -1) {
+      return true;
+    }
+  }
+  return false;
+}
 
 function fBeginning(req, res){
   var sFrom = req.body.From;
-  oConnections[sFrom].fCurState = fEatCottonCandyOrNot;
   var twiml = new twilio.twiml.MessagingResponse();
-  twiml.message('You wake up one morning to find yourself in a very strange world, and you notice that it\'s raining cotton candy. Do you eat the cotton candy that is falling from the sky?');
+  twiml.message("[START]\nYou wake up one morning to find yourself in a very strange world, and you notice that it's raining cotton candy. Do you eat the cotton candy that is falling from the sky?");
+  oConnections[sFrom].fCurState = fEatCottonCandyOrNot;
   res.writeHead(200, {'Content-Type': 'text/xml'});
   res.end(twiml.toString());
 
@@ -33,13 +47,13 @@ function fEatCottonCandyOrNot(req, res){
   var sFrom = req.body.From;
   var sAction = req.body.Body;
   var twiml = new twilio.twiml.MessagingResponse();
-  if(sAction.toLowerCase().search("yes") != -1){
+  if (smartSearch(sAction, ["yes", "ya", "eat", "do it"])){
     twiml.message("You catch a piece of cotton candy and shove it in your mouth. You find yourself feeling dizzy, and your vision going blurry... and you start to feel a bit numb. Do you spit out the cotton candy or do you swallow it and accept your fate?");
-    oConnections[sFrom].fCurState = fSwallowOrSpitOut;
+    oConnections[sFrom].fCurState = fBeginning; //fSwallowOrSpitOut;
   }
-  else if(sAction.toLowerCase().search("no") != -1){  
+  else if (smartSearch(sAction, ["no", "dont", "don't", "do not"])){  
     twiml.message("You decide to just watch the cotton candy fall in peace and not take any chances. But suddenly the cotton candy comes to life and begins to swarm you and cover your entire body, forming a body suit. You feel an urge to jump. Do you?");
-    oConnections[sFrom].fCurState = fJumpInCottonCandySuitOrNot;
+    oConnections[sFrom].fCurState = fBeginning; //fJumpInCottonCandySuitOrNot;
   }
   else {
     twiml.message(incorrectInputText);
